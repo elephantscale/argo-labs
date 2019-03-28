@@ -112,3 +112,55 @@ We will be learning most useful commands and creating a very simple workflow tem
     - automated
     - uditable
     - and easy to understand
+
+---
+
+## Architecture
+![](images/architecture_CD.png)
+
+---
+
+## Getting Started
+A simple start would be like this:
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+# Argo Events
+
+---
+
+## What Is Argo Events?
+* An event-based dependency manager
+* For Kubernetes
+* Helps to define multiple dependencies
+* From a variety of events sources like 
+    - webhook
+    - s3
+    - schedules
+    - streams
+* Triggers objects after successful event dependencies reslution
+---
+
+## Argo Events in an image
+
+![](images/events.png)
+
+---
+
+## Core Concepts
+* **Gateway** is implemented
+    - as a Kubernetes-native Custom Resource Definition processes events from event source.
+* **Sensor** is implemented as a Kubernetes-native Custom Resource Definition defines a set of event dependencies and triggers K8s resources.
+
+---
+
+## LAB: Argo events
+* Overview:
+We will be installing requirements and running event-based activities
+* Builds on previous lab: Argo_Installation.md
+* Run time: 40 mins
+* Address: Argo_Events.md
+
+---
