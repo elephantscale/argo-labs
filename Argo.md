@@ -91,3 +91,24 @@ We will be learning most useful commands and creating a very simple workflow tem
 * Address: Argo_Wrokflow_Templates.md
 
 ---
+
+# Argo CD
+
+---
+
+## What is Argo CD?
+* Argo CD is a
+    - declarative
+    - GitOps continuous delivery tool
+    - for Kubernetes
+---
+
+## Why Argo CD?
+* To make declarative and version controlled:
+    - Application definitions
+    - configurations
+    - and environment
+* Application deployment and lifecycle management sould be:
+    - automated
+    - uditable
+    - and easy to understand
