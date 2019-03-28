@@ -17,50 +17,56 @@ https://docs.helm.sh/using_helm/
 
 ### Run time
 
-30 mins
+40 mins
 
-## STEP 0: Installing Argo
+## STEP 1: Installing Argo Events
 
 1. login to system.
 
-2. If you do not already have the file, download it here:
+2. Add `argoproj` repository
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+```
+3. Install `argo-events` chart
 
 ```bash
-curl -sSL -o /usr/local/bin/argo https://github.com/argoproj/argo/releases/download/v2.2.1/argo-linux-amd64
-```
-3. Set the permission
-```bash
-chmod +x /usr/local/bin/argo
-```
-4. Install the Controller and UI
-```bash
-kubectl create ns argo
-kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/manifests/install.yaml
+helm install argo/argo-events
 ```
 
-## STEP 1: Configure the service account to run workflows
-
-1. Run the following command to grant admin privileges to the 'default' service account in the namespace 'default
-```bash
-kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+4. Using Kubectl
+Run the following commands:
+```yaml
+kubectl create namespace argo-events
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/argo-events-sa.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/argo-events-cluster-roles.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/sensor-crd.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/gateway-crd.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/sensor-controller-configmap.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/sensor-controller-deployment.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/gateway-controller-configmap.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/hack/k8s/manifests/gateway-controller-deployment.yaml
 ```
 
-## STEP 2: Run Simple Example Workflows
-1. Run the following argo commands:
+## STEP 2: Get Started
+1. To deploy a webhook first, we need to setup event sources
 ```bash
-argo submit --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
-argo submit --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/coinflip.yaml
-argo submit --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/loops-maps.yaml
-argo list
-argo get xxx-workflow-name-xxx
-argo logs xxx-pod-name-xxx #from get command above
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/examples/gateways/webhook-gateway-configmap.yaml 
 ```
 
-2. Creating workflows directly with kubectl(offers less features)
+2. To create webhook gateway:
 ```bash
-kubectl create -f https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
-kubectl get wf
-kubectl get wf hello-world-xxx
-kubectl get po --selector=workflows.argoproj.io/workflow=hello-world-xxx --show-all
-kubectl logs hello-world-yyy -c main
+ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/examples/gateways/webhook-http.yaml
 ```
+
+3. To create webhook sensor:
+```bash
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/master/examples/sensors/webhook-http.yaml
+```
+
+4. After running them, we trigger the webhook by an HTTP POST request
+```json
+export WEBHOOK_SERVICE_URL=$(minikube service -n argo-events --url <gateway_service_name>)
+ echo $WEBHOOK_SERVICE_URL
+ curl -d '{"message":"this is my first webhook"}' -H "Content-Type: application/json" -X POST $WEBHOOK_SERVICE_URL/foo
+```
+
